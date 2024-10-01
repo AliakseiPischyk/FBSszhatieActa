@@ -60,6 +60,7 @@ def try_download_seller_products_from_ozon():
                     "зовите программиста")
 
 
+
 nakladnaya = pd.read_excel('nakladnaya.xlsx', engine='openpyxl')
 nakladnaya = nakladnaya.drop(range(0,42),axis=0)
 nakladnaya = nakladnaya.dropna(axis=1, how='all')
@@ -70,14 +71,35 @@ nakladnaya = nakladnaya[nakladnaya['Единица измерения'].str.cont
 nakladnaya['Примечание'] = nakladnaya['Примечание'].apply(lambda x: x.split('/')[0].strip())
 
 
-act = pd.read_excel('Act.xlsx', engine='openpyxl')
-act.rename(columns={'Тип': 'Сжато'}, inplace=True)
-act['Сжато'] = 1
-act['Комментарий'] = ''
+def wired_shit(row):
+    n = row['Колич ество']
+    a = [row] * n
+    c = pd.DataFrame(a)
+    idx = c.index.values.astype(int)[0]
 
-act['Отправление'] = act['Отправление'].transform(lambda x: x + ' \n')
-act = act.groupby(['Наименование']).agg(
-    {'Сжато': 'sum', 'Отправление': 'sum', 'Стоимость, руб.': 'sum', 'Вес, кг': 'sum'}).reset_index()
+    c['Колич ество'] = 1
+    c['Стоимость, руб. коп'] = c['Цена, руб. коп.']
+    c['Стоимость с НДС, руб. коп.'] = c['Стоимость, руб. коп']
+    c['Масса груза'] = c['Масса груза'].str.replace(',','.').astype(float)/n
+    for i in range(0,n):
+        nakladnaya.loc[idx + 0.000001*i] =c.iloc[i]
+
+
+nakladnaya[nakladnaya['Колич ество']>1].apply(lambda row: wired_shit(row), axis=1)
+nakladnaya.sort_index(inplace=True)
+nakladnaya.reset_index(inplace=True, drop=True)
+nakladnaya = nakladnaya[['Наименование товара', 'Колич ество','Цена, руб. коп.','Масса груза','Примечание']]
+nakladnaya.rename(columns={'Наименование товара':'Наименование приложение','Колич ество':'Количество','Примечание':'Номер отправления'},inplace=True)
+nakladnaya.to_excel('v2.xlsx',index=False)
+
+prefixed_postings = [filename for filename in os.listdir('.') if filename.startswith("postings")]
+postings = pd.read_csv(prefixed_postings[0], sep=';')
+postings = postings[['Номер отправления','Наименование товара','Артикул']]
+postings.rename(columns = {'Наименование товара':'Наименование полное'})
+
+nakladnaya_full = nakladnaya.merge(postings,on='Номер отправления',how='left')
+nakladnaya_full.fillna('ошибка',inplace=True)
+nakladnaya_full.to_excel('v3.xlsx')
 
 try_download_seller_products_from_ozon()
 prefixed = [filename for filename in os.listdir('.') if filename.startswith("seller_products")]
@@ -89,7 +111,22 @@ all_goods['Артикул'] = all_goods['Артикул'].apply(lambda x: (x[1:]
 all_goods = all_goods[['Артикул', 'Штрихкод', 'Наименование товара']]
 all_goods.rename(columns={'Наименование товара': 'Наименование'}, inplace=True)
 
+act=pd.DataFrame()
+act['Наименование'] = nakladnaya_full['Наименование товара']
+act['Сжато'] = nakladnaya_full['Количество']
+act['Отправление'] = nakladnaya_full['Номер отправления']
+act['Стоимость, руб.'] = nakladnaya_full['Цена, руб. коп.']
+act['Вес, кг'] = nakladnaya_full['Масса груза']
+#act = pd.read_excel('Act.xlsx', engine='openpyxl')
+#act.rename(columns={'Тип': 'Сжато'}, inplace=True)
+#act['Сжато'] = 1
+act['Комментарий'] = ''
+
+act['Отправление'] = act['Отправление'].transform(lambda x: x + ' \n')
+act = act.groupby(['Наименование']).agg(
+    {'Сжато': 'sum', 'Отправление': 'sum', 'Стоимость, руб.': 'sum', 'Вес, кг': 'sum'}).reset_index()
 act = act.merge(all_goods, on='Наименование', how='left')
+
 
 
 def df_column_switch(df, column1, column2):
