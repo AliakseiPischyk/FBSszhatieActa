@@ -60,6 +60,15 @@ def try_download_seller_products_from_ozon():
                     "зовите программиста")
 
 
+nakladnaya = pd.read_excel('nakladnaya.xlsx', engine='openpyxl')
+nakladnaya = nakladnaya.drop(range(0,42),axis=0)
+nakladnaya = nakladnaya.dropna(axis=1, how='all')
+nakladnaya = nakladnaya.fillna(axis=0, value='0')
+nakladnaya.columns = list(nakladnaya.iloc[0])
+nakladnaya['Единица измерения'] = nakladnaya['Единица измерения'].astype(str)
+nakladnaya = nakladnaya[nakladnaya['Единица измерения'].str.contains("шт.")]
+nakladnaya['Примечание'] = nakladnaya['Примечание'].apply(lambda x: x.split('/')[0].strip())
+
 
 act = pd.read_excel('Act.xlsx', engine='openpyxl')
 act.rename(columns={'Тип': 'Сжато'}, inplace=True)
