@@ -106,6 +106,7 @@ def kek(row):
     if postings['Номер отправления'].value_counts()[nomer] > 1:
         condition = (postings['Номер отправления'] == nomer) #& (postings['Наименование товара'] == row['Наименование товара'])
         print(postings[condition]['Наименование товара'].value_counts())
+        print(nomer)
         if len(postings[condition]['Наименование товара'].value_counts()) > 1:
             postings.loc[condition, 'Наименование товара'] = 'ДУБЛЛЬ ОТПРАВЛЕНИЯ'
 
