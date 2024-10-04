@@ -101,6 +101,17 @@ postings = pd.read_csv(prefixed_postings[0], sep=';')
 postings = postings[['Номер отправления','Наименование товара','Артикул']]
 postings.rename(columns = {'Наименование товара':'Наименование полное'})
 
+def kek(row):
+    nomer = row['Номер отправления']
+    if postings['Номер отправления'].value_counts()[nomer] > 1:
+        condition = (postings['Номер отправления'] == nomer) #& (postings['Наименование товара'] == row['Наименование товара'])
+        print(postings[condition]['Наименование товара'].value_counts())
+        if len(postings[condition]['Наименование товара'].value_counts()) > 1:
+            postings.loc[condition, 'Наименование товара'] = 'ДУБЛЛЬ ОТПРАВЛЕНИЯ'
+
+
+postings.apply(lambda row: kek(row), axis=1)
+
 nakladnaya_full = nakladnaya.merge(postings,on='Номер отправления',how='left')
 nakladnaya_full.fillna('ошибка',inplace=True)
 
