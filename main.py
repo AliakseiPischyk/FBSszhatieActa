@@ -118,7 +118,7 @@ act=pd.DataFrame()
 act['Наименование'] = nakladnaya_full['Наименование товара']
 act['Сжато'] = nakladnaya_full['Количество']
 act['Отправление'] = nakladnaya_full['Номер отправления']
-act['Стоимость, руб.'] = nakladnaya_full['Цена, руб. коп.'].str.replace(',','.').astype(float)
+act['Стоимость, руб.'] = nakladnaya_full['Цена, руб. коп.']#.str.replace(',','.').astype(float)
 act['Вес, кг'] = nakladnaya_full['Масса груза']
 #act = pd.read_excel('Act.xlsx', engine='openpyxl')
 #act.rename(columns={'Тип': 'Сжато'}, inplace=True)
@@ -155,12 +155,18 @@ def fill_wtuk(x):
     if ' 36шт' in art:
         art = art.replace(' 36шт', ' ')
         x['Шт в арт.'] = 36
+    if ' 30шт' in art:
+        art = art.replace(' 30шт', ' ')
+        x['Шт в арт.'] = 30
     if ' 25шт' in art:
         art = art.replace(' 25шт', ' ')
         x['Шт в арт.'] = 25
     if ' 24шт' in art:
         art = art.replace(' 24шт', ' ')
         x['Шт в арт.'] = 24
+    if ' 18шт' in art:
+        art = art.replace(' 18шт', ' ')
+        x['Шт в арт.'] = 18
     if ' 10шт' in art:
         art = art.replace(' 10шт', ' ')
         x['Шт в арт.'] = 10
@@ -327,10 +333,14 @@ def delete_wtuk(x):
         art = art.replace(' 10шт', ' ')
     if ' 12шт' in art:
         art = art.replace(' 12шт', ' ')
+    if ' 18шт' in art:
+        art = art.replace(' 18шт', ' ')
     if ' 24шт' in art:
         art = art.replace(' 24шт', ' ')
     if ' 25шт' in art:
         art = art.replace(' 25шт', ' ')
+    if ' 30шт' in art:
+        art = art.replace(' 30шт', ' ')
     if ' 36шт' in art:
         art = art.replace(' 36шт', ' ')
     if ' 48шт' in art:
