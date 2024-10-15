@@ -37,7 +37,6 @@ nakladnaya.reset_index(inplace=True, drop=True)
 nakladnaya = nakladnaya[['Наименование товара', 'Колич ество','Цена, руб. коп.','Масса груза','Примечание']]
 nakladnaya.rename(columns={'Наименование товара':'Наименование приложение','Колич ество':'Количество','Примечание':'Номер отправления'},inplace=True)
 
-
 prefixed_postings = [filename for filename in os.listdir('.') if filename.startswith("postings")]
 postings = pd.read_csv(prefixed_postings[0], sep=';')
 postings = postings[['Номер отправления','Наименование товара','Артикул']]
