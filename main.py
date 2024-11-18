@@ -7,7 +7,7 @@ nakladnaya = pd.read_excel('nakladnaya.xlsx', engine='openpyxl')
 nakladnaya = nakladnaya.drop(range(0,44),axis=0)
 nakladnaya = nakladnaya.dropna(axis=1, how='all')
 nakladnaya = nakladnaya.fillna(axis=0, value='0')
-nakladnaya.columns = list(nakladnaya.iloc[0])
+nakladnaya.columns = list(nakladnaya.iloc[1])
 nakladnaya['Единица измерения'] = nakladnaya['Единица измерения'].astype(str)
 nakladnaya = nakladnaya[nakladnaya['Единица измерения'].str.contains("шт.")]
 nakladnaya['Масса груза'] = nakladnaya['Масса груза'].astype(str)
